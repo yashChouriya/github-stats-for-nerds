@@ -28,8 +28,10 @@ class SVGGenerator {
     const colors = this.themes[theme];
     const width = options.width || 495;
     const height = options.height || 195;
+    const period = options.period || 'all';
 
     const totalContributions = Object.values(stats.contributions).reduce((a, b) => a + b, 0);
+    const periodLabel = this.getPeriodLabel(period);
 
     return `
       <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -43,7 +45,7 @@ class SVGGenerator {
         <rect data-testid="card-bg" x="0.5" y="0.5" rx="4.5" height="99%" stroke="${colors.border}" width="${width - 1}" fill="${colors.bg}" stroke-opacity="1"/>
 
         <g data-testid="card-title" transform="translate(25, 25)">
-          <text x="0" y="0" class="header" data-testid="header">${stats.user.name || stats.user.login}'s GitHub Stats</text>
+          <text x="0" y="0" class="header" data-testid="header">${stats.user.name || stats.user.login}'s GitHub Stats${periodLabel}</text>
         </g>
 
         <g data-testid="main-card-body" transform="translate(25, 55)">
@@ -153,8 +155,10 @@ class SVGGenerator {
     const colors = this.themes[theme];
     const width = options.width || 400;
     const height = options.height || 160;
+    const period = options.period || 'all';
 
     const total = Object.values(contributions).reduce((a, b) => a + b, 0);
+    const periodLabel = this.getPeriodLabel(period);
 
     return `
       <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -167,7 +171,7 @@ class SVGGenerator {
         <rect data-testid="card-bg" x="0.5" y="0.5" rx="4.5" height="99%" stroke="${colors.border}" width="${width - 1}" fill="${colors.bg}" stroke-opacity="1"/>
 
         <g data-testid="card-title" transform="translate(25, 25)">
-          <text x="0" y="0" class="header">Contributions (Public + Private)</text>
+          <text x="0" y="0" class="header">Contributions${periodLabel}</text>
         </g>
 
         <g data-testid="main-card-body" transform="translate(25, 55)">
@@ -269,6 +273,17 @@ class SVGGenerator {
 
     // Limit to 8 trophies for display
     return trophies.slice(0, 8);
+  }
+
+  getPeriodLabel(period) {
+    const labels = {
+      'all': '',
+      'year': ' (This Year)',
+      'month': ' (This Month)',
+      'last-year': ' (Last Year)',
+      'last-month': ' (Last Month)'
+    };
+    return labels[period] || '';
   }
 }
 

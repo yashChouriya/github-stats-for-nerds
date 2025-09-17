@@ -3,10 +3,24 @@ const SVGGenerator = require('../utils/svg-generator');
 
 module.exports = async (req, res) => {
   try {
-    const { username, theme = 'dark', card = 'stats', include_private = 'true' } = req.query;
+    const {
+      username,
+      theme = 'dark',
+      card = 'stats',
+      include_private = 'true',
+      period = 'all'
+    } = req.query;
 
     if (!username) {
       return res.status(400).json({ error: 'Username is required' });
+    }
+
+    // Validate period parameter
+    const validPeriods = ['all', 'year', 'month', 'last-year', 'last-month'];
+    if (!validPeriods.includes(period)) {
+      return res.status(400).json({
+        error: `Invalid period. Valid options: ${validPeriods.join(', ')}`
+      });
     }
 
     // Get GitHub token from environment variables
@@ -34,20 +48,20 @@ module.exports = async (req, res) => {
       }
       else if (card === 'contributions') {
         // Generate contributions card
-        const stats = await githubClient.getUserStats(username);
-        const svg = svgGenerator.generateContributionCard(stats.contributions, theme);
+        const stats = await githubClient.getUserStats(username, period);
+        const svg = svgGenerator.generateContributionCard(stats.contributions, theme, { period });
         return res.send(svg);
       }
       else if (card === 'trophies') {
         // Generate trophies card
-        const stats = await githubClient.getUserStats(username);
+        const stats = await githubClient.getUserStats(username, period);
         const svg = svgGenerator.generateTrophyCard(stats, theme);
         return res.send(svg);
       }
       else {
         // Generate main stats card (default)
-        const stats = await githubClient.getUserStats(username);
-        const svg = svgGenerator.generateStatsCard(stats, theme);
+        const stats = await githubClient.getUserStats(username, period);
+        const svg = svgGenerator.generateStatsCard(stats, theme, { period });
         return res.send(svg);
       }
     } catch (githubError) {
