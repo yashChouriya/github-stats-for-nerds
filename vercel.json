@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "api/*.js": {
+      "runtime": "@vercel/node"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/stats/:username",
+      "destination": "/api/stats?username=:username"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "github-stats-for-nerds",
+  "version": "1.0.0",
+  "description": "Comprehensive GitHub stats generator including private and organization contributions",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "vercel build",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "@octokit/rest": "^20.0.2",
+    "@octokit/auth-token": "^4.0.0"
+  },
+  "devDependencies": {
+    "@vercel/node": "^3.0.0"
+  },
+  "keywords": [
+    "github",
+    "stats",
+    "api",
+    "vercel",
+    "serverless"
+  ],
+  "author": "Yash Chouriya",
+  "license": "MIT"
+}
