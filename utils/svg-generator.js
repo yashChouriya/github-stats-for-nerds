@@ -167,7 +167,7 @@ class SVGGenerator {
         <rect data-testid="card-bg" x="0.5" y="0.5" rx="4.5" height="99%" stroke="${colors.border}" width="${width - 1}" fill="${colors.bg}" stroke-opacity="1"/>
 
         <g data-testid="card-title" transform="translate(25, 25)">
-          <text x="0" y="0" class="header">Contributions (Last Year)</text>
+          <text x="0" y="0" class="header">Contributions (Public + Private)</text>
         </g>
 
         <g data-testid="main-card-body" transform="translate(25, 55)">
@@ -194,6 +194,81 @@ class SVGGenerator {
         </g>
       </svg>
     `;
+  }
+
+  generateTrophyCard(stats, theme = 'dark', options = {}) {
+    const colors = this.themes[theme];
+    const width = options.width || 500;
+    const height = options.height || 200;
+
+    // Calculate trophies based on stats
+    const trophies = this.calculateTrophies(stats);
+
+    return `
+      <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <style>
+          .header { font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif; fill: ${colors.text}; }
+          .trophy-title { font: 600 12px 'Segoe UI', Ubuntu, Sans-Serif; fill: ${colors.text}; }
+          .trophy-desc { font: 400 10px 'Segoe UI', Ubuntu, Sans-Serif; fill: ${colors.textSecondary}; }
+        </style>
+
+        <rect data-testid="card-bg" x="0.5" y="0.5" rx="4.5" height="99%" stroke="${colors.border}" width="${width - 1}" fill="${colors.bg}" stroke-opacity="1"/>
+
+        <g data-testid="card-title" transform="translate(25, 25)">
+          <text x="0" y="0" class="header">🏆 GitHub Trophies</text>
+        </g>
+
+        <g data-testid="main-card-body" transform="translate(25, 55)">
+          ${trophies.map((trophy, index) => {
+            const x = (index % 4) * 110;
+            const y = Math.floor(index / 4) * 70;
+            return `
+              <g transform="translate(${x}, ${y})">
+                <text x="20" y="15" style="font-size: 24px;">${trophy.icon}</text>
+                <text class="trophy-title" x="0" y="35">${trophy.title}</text>
+                <text class="trophy-desc" x="0" y="50">${trophy.description}</text>
+              </g>
+            `;
+          }).join('')}
+        </g>
+      </svg>
+    `;
+  }
+
+  calculateTrophies(stats) {
+    const trophies = [];
+
+    // Stars trophies
+    if (stats.totalStars >= 1000) trophies.push({ icon: '⭐', title: 'Star Master', description: '1000+ stars' });
+    else if (stats.totalStars >= 100) trophies.push({ icon: '🌟', title: 'Star Collector', description: '100+ stars' });
+    else if (stats.totalStars >= 10) trophies.push({ icon: '✨', title: 'Rising Star', description: '10+ stars' });
+
+    // Repository trophies
+    if (stats.totalRepos >= 100) trophies.push({ icon: '📚', title: 'Repo Master', description: '100+ repos' });
+    else if (stats.totalRepos >= 50) trophies.push({ icon: '📖', title: 'Prolific', description: '50+ repos' });
+    else if (stats.totalRepos >= 10) trophies.push({ icon: '📝', title: 'Creator', description: '10+ repos' });
+
+    // Contribution trophies
+    const totalContribs = Object.values(stats.contributions).reduce((a, b) => a + b, 0);
+    if (totalContribs >= 10000) trophies.push({ icon: '🚀', title: 'Super Active', description: '10k+ contributions' });
+    else if (totalContribs >= 5000) trophies.push({ icon: '🔥', title: 'Very Active', description: '5k+ contributions' });
+    else if (totalContribs >= 1000) trophies.push({ icon: '💪', title: 'Active', description: '1k+ contributions' });
+
+    // Language diversity
+    const langCount = Object.keys(stats.languages).length;
+    if (langCount >= 10) trophies.push({ icon: '🌈', title: 'Polyglot', description: '10+ languages' });
+    else if (langCount >= 5) trophies.push({ icon: '🎨', title: 'Multi-lingual', description: '5+ languages' });
+
+    // Organization trophy
+    if (stats.organizations >= 5) trophies.push({ icon: '🏢', title: 'Team Player', description: '5+ orgs' });
+    else if (stats.organizations >= 1) trophies.push({ icon: '👥', title: 'Collaborator', description: 'In organizations' });
+
+    // Pull Request trophies
+    if (stats.contributions.pullRequests >= 500) trophies.push({ icon: '🔀', title: 'PR Master', description: '500+ PRs' });
+    else if (stats.contributions.pullRequests >= 100) trophies.push({ icon: '📤', title: 'Contributor', description: '100+ PRs' });
+
+    // Limit to 8 trophies for display
+    return trophies.slice(0, 8);
   }
 }
 
