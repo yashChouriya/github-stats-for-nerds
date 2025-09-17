@@ -458,6 +458,170 @@ class SVGGenerator {
     return trophies.slice(0, 8);
   }
 
+  generateAdvancedMetricsCard(stats, theme = 'dark', options = {}) {
+    const colors = this.themes[theme];
+    const width = options.width || 600;
+    const height = options.height || 350;
+    const metrics = stats.advancedMetrics;
+    const period = options.period || 'all';
+    const periodLabel = this.getPeriodLabel(period);
+
+    return `
+      <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none" xmlns="http://www.w3.org/2000/svg">
+        ${this.generateGradientDefs(theme)}
+
+        <style>
+          .header { font: 700 20px 'Segoe UI', sans-serif; fill: ${colors.text}; }
+          .metric-label { font: 600 11px 'Segoe UI', sans-serif; fill: ${colors.textSecondary}; text-transform: uppercase; letter-spacing: 0.8px; }
+          .metric-value { font: 700 18px 'Segoe UI', sans-serif; }
+          .metric-unit { font: 400 12px 'Segoe UI', sans-serif; fill: ${colors.textSecondary}; }
+          .metric-box {
+            fill: ${theme === 'dark' ? '#21262d' : '#f6f8fa'};
+            stroke: ${colors.border};
+            stroke-width: 1.5;
+            rx: 12;
+          }
+          .card-border { stroke: url(#accent-gradient-${theme}); stroke-width: 1.5; }
+
+          @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+          }
+
+          @keyframes slideUp {
+            from { transform: translateY(15px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+          }
+
+          .metric-pulse {
+            animation: pulse 2s infinite;
+          }
+
+          .metric-slide {
+            animation: slideUp 0.8s ease-out forwards;
+          }
+
+          .progress-bar-bg {
+            fill: ${colors.border};
+            opacity: 0.3;
+          }
+
+          .consistency-bar { fill: #10b981; }
+          .owl-bar { fill: #f59e0b; }
+          .warrior-bar { fill: #8b5cf6; }
+          .dark-bar { fill: #6366f1; }
+          .velocity-bar { fill: #ec4899; }
+        </style>
+
+        <rect x="1" y="1" rx="12" height="${height-2}" width="${width-2}" fill="${colors.bg}" class="card-border"/>
+
+        <g transform="translate(30, 40)">
+          <text x="0" y="0" class="header" filter="url(#glow-${theme})">🧠 Advanced Developer Analytics${periodLabel}</text>
+        </g>
+
+        <!-- Top Row Metrics -->
+        <g transform="translate(30, 85)">
+          <!-- Consistency Score -->
+          <g transform="translate(0, 0)" class="metric-slide">
+            <rect class="metric-box" x="0" y="0" width="130" height="70"/>
+            <text x="10" y="18" style="font-size: 16px;">📊</text>
+            <text class="metric-value consistency-bar" x="10" y="40">${metrics.consistencyScore}%</text>
+            <text class="metric-label" x="10" y="55">Consistency Score</text>
+            <!-- Progress bar -->
+            <rect class="progress-bar-bg" x="10" y="60" width="110" height="4" rx="2"/>
+            <rect class="consistency-bar" x="10" y="60" width="${(metrics.consistencyScore / 100) * 110}" height="4" rx="2" opacity="0.8"/>
+          </g>
+
+          <!-- Streak Power -->
+          <g transform="translate(145, 0)" class="metric-slide" style="animation-delay: 0.1s">
+            <rect class="metric-box" x="0" y="0" width="130" height="70"/>
+            <text x="10" y="18" style="font-size: 16px;">🔥</text>
+            <text class="metric-value" x="10" y="40" fill="url(#accent-gradient-${theme})">${metrics.streakPower}</text>
+            <text class="metric-label" x="10" y="55">Streak Power</text>
+          </g>
+
+          <!-- Owl Index -->
+          <g transform="translate(290, 0)" class="metric-slide" style="animation-delay: 0.2s">
+            <rect class="metric-box" x="0" y="0" width="130" height="70"/>
+            <text x="10" y="18" style="font-size: 16px;">🦉</text>
+            <text class="metric-value owl-bar" x="10" y="40">${metrics.owlIndex}x</text>
+            <text class="metric-label" x="10" y="55">Night Owl Index</text>
+          </g>
+
+          <!-- Weekend Warrior -->
+          <g transform="translate(435, 0)" class="metric-slide" style="animation-delay: 0.3s">
+            <rect class="metric-box" x="0" y="0" width="130" height="70"/>
+            <text x="10" y="18" style="font-size: 16px;">⚔️</text>
+            <text class="metric-value warrior-bar" x="10" y="40">${metrics.weekendWarriorScore}%</text>
+            <text class="metric-label" x="10" y="55">Weekend Warrior</text>
+          </g>
+        </g>
+
+        <!-- Bottom Row Metrics -->
+        <g transform="translate(30, 175)">
+          <!-- Dark Coder -->
+          <g transform="translate(0, 0)" class="metric-slide" style="animation-delay: 0.4s">
+            <rect class="metric-box" x="0" y="0" width="130" height="70"/>
+            <text x="10" y="18" style="font-size: 16px;">🌙</text>
+            <text class="metric-value dark-bar" x="10" y="40">${metrics.darkCoderPercentage}%</text>
+            <text class="metric-label" x="10" y="55">Dark Coder</text>
+            <!-- Progress bar -->
+            <rect class="progress-bar-bg" x="10" y="60" width="110" height="4" rx="2"/>
+            <rect class="dark-bar" x="10" y="60" width="${(metrics.darkCoderPercentage / 100) * 110}" height="4" rx="2" opacity="0.8"/>
+          </g>
+
+          <!-- Commit Velocity -->
+          <g transform="translate(145, 0)" class="metric-slide" style="animation-delay: 0.5s">
+            <rect class="metric-box" x="0" y="0" width="130" height="70"/>
+            <text x="10" y="18" style="font-size: 16px;">🚀</text>
+            <text class="metric-value velocity-bar" x="10" y="40">${metrics.commitVelocity}</text>
+            <text class="metric-unit" x="10" y="55">commits/month</text>
+          </g>
+
+          <!-- Bug Slayer Score -->
+          <g transform="translate(290, 0)" class="metric-slide" style="animation-delay: 0.6s">
+            <rect class="metric-box" x="0" y="0" width="130" height="70"/>
+            <text x="10" y="18" style="font-size: 16px;">🐛</text>
+            <text class="metric-value" x="10" y="40" fill="#ef4444">${metrics.bugSlayerScore || '0.85'}</text>
+            <text class="metric-label" x="10" y="55">Bug Slayer Score</text>
+          </g>
+
+          <!-- Repo Diversity -->
+          <g transform="translate(435, 0)" class="metric-slide" style="animation-delay: 0.7s">
+            <rect class="metric-box" x="0" y="0" width="130" height="70"/>
+            <text x="10" y="18" style="font-size: 16px;">🌈</text>
+            <text class="metric-value" x="10" y="40" fill="url(#accent-gradient-${theme})">${metrics.repoDiversityIndex}</text>
+            <text class="metric-label" x="10" y="55">Diversity Index</text>
+          </g>
+        </g>
+
+        <!-- Fun Stats Section -->
+        <g transform="translate(30, 270)">
+          <text style="font: 600 14px 'Segoe UI', sans-serif; fill: ${colors.text};" class="metric-pulse">
+            💡 Peak coding time: ${this.getPeakHour(metrics.commitsByHour)}:00 •
+            📅 Most active day: ${this.getPeakDay(metrics.commitsByDay)} •
+            🤝 Collab Index: ${metrics.collaborationIndex}
+          </text>
+        </g>
+
+        <!-- Decorative elements -->
+        <circle cx="${width-40}" cy="40" r="4" fill="url(#accent-gradient-${theme})" opacity="0.6" class="metric-pulse"/>
+        <circle cx="${width-55}" cy="55" r="2" fill="url(#accent-gradient-${theme})" opacity="0.4" class="metric-pulse" style="animation-delay: 0.5s"/>
+      </svg>
+    `;
+  }
+
+  getPeakHour(hourlyData) {
+    const maxIndex = hourlyData.indexOf(Math.max(...hourlyData));
+    return maxIndex.toString().padStart(2, '0');
+  }
+
+  getPeakDay(dailyData) {
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const maxIndex = dailyData.indexOf(Math.max(...dailyData));
+    return days[maxIndex] || 'Monday';
+  }
+
   formatNumber(num) {
     if (num >= 1000000) return Math.floor(num / 1000000) + 'M+';
     if (num >= 1000) return Math.floor(num / 1000) + 'k+';

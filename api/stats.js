@@ -58,6 +58,12 @@ module.exports = async (req, res) => {
         const svg = svgGenerator.generateTrophyCard(stats, theme);
         return res.send(svg);
       }
+      else if (card === 'metrics') {
+        // Generate advanced metrics card
+        const stats = await githubClient.getUserStats(username, period);
+        const svg = svgGenerator.generateAdvancedMetricsCard(stats, theme, { period });
+        return res.send(svg);
+      }
       else {
         // Generate main stats card (default)
         const stats = await githubClient.getUserStats(username, period);
